@@ -1,6 +1,16 @@
 from pydantic import BaseModel
 
-class User(BaseModel):
-  name: str
+class Users(BaseModel):
+  user_id: int
   email: str
   password: str
+
+class Files(BaseModel):
+  file_id: int
+  file_name: str
+  file_path: str
+
+class Relation(BaseModel):
+  user_id: int
+  file_id: int
+  is_owner: int

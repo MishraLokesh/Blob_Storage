@@ -1,0 +1,33 @@
+// query to insert new user
+{
+  "user": {
+    "user_id": 69,
+    "email": "U69",
+    "password": "user69"
+  },
+  "file": {
+    "file_id": 69,
+    "file_name": "F69",
+    "file_path": "/Files"
+  },
+  "relation": {
+    "user_id": 69,
+    "file_id": 69,
+    "is_owner": 1
+  }
+}
+
+// update user
+{
+  "user": {
+    "user_id": 69,
+    "email": "U69",
+    "password": "user69"
+  },
+  "file": {
+    "file_id": 69,
+    "file_name": "F69",
+    "file_path": "/Files"
+  }
+}
+

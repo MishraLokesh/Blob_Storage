@@ -5,7 +5,7 @@ from sqlalchemy import create_engine, MetaData
 # SQLALCHEMY_DATABASE_URL = "mysql://localhost:3306/blob"
 
 engine = create_engine(
-    'mysql+pymysql://root:andi4562@localhost:3306/test'
+    'mysql+pymysql://root:andi4562@localhost:3306/blob'
     # SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
 )
 
