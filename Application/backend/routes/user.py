@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-
+from sqlalchemy.sql import text
 from schemas.user import Users
 from schemas.user import Files
 from schemas.user import Relation
@@ -21,8 +21,8 @@ async def fetch_users():
 # fetch user by id
 @user.get('/{id}')
 async def fetch_user_files(id: int):
-  return conn.execute(files.select().where(files.c.file_id == id)).first()
-  # return conn.execute(files.select().where(files.c.id == (relation.select().where(user.c.user_id == id)).file_id))
+  s = text("SELECT * FROM blob.files where file_id in (SELECT file_id FROM blob.relation where user_id = :userid)")
+  return conn.execute(s, userid=id).fetchall()
 
 
 # insert new user
@@ -70,7 +70,10 @@ async def update_user(id: int, user: Users, file: Files):
 # give access to another user
 @user.post('/{id1}')
 async def access_to_new_user(id1: int, id2: int):
-  if((relations.c.is_owner == 1).where(relations.c.user_id == id1)):
+  s = text("select is_owner from blob.relation where user_id = :userid")
+  result1 = conn.execute(s, userid=id1).fetchall()
+  # print(result1)
+  if(len(result1) > 0):
     conn.execute(relations.insert().values(
       user_id=id2,
       file_id=id1,
