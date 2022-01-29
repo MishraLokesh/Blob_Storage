@@ -58,7 +58,7 @@ async def insert_user(user: Users, file: Files):
   conn.execute(files.insert().values(
     file_id=file.file_id,
     file_name=file.file_name,
-    file_path=sample,
+    file_path="sample",
   ))
   conn.execute(relations.insert().values(
     user_id=user.user_id,
