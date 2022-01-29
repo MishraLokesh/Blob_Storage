@@ -8,9 +8,9 @@ class Users(BaseModel):
 class Files(BaseModel):
   file_id: int
   file_name: str
-  file_path: str
 
 class Relation(BaseModel):
   user_id: int
   file_id: int
   is_owner: int
+  

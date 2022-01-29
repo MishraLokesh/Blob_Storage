@@ -18,10 +18,32 @@ async def fetch_users():
   return conn.execute(users.select()).fetchall()
 
 
+
+# convert file to blob
+def readfile(filename):
+  with open(filename, "rb") as f:
+      data = f.read()
+  return data
+
+
+def writefile(filename, data):
+  with open(filename, "wb") as f:
+      f.write(data)
+
+#blob read from user file
+sample = readfile("img2.png")
+ 
+# file created from blob data
+
+
 # fetch user by id
 @user.get('/{id}')
 async def fetch_user_files(id: int):
   s = text("SELECT * FROM blob.files where file_id in (SELECT file_id FROM blob.relation where user_id = :userid)")
+  blob_name = text("SELECT file_path FROM blob.files where file_id in (SELECT file_id FROM blob.relation where user_id = :userid)")
+  result = conn.execute(blob_name, userid=id).fetchall()
+  writefile("newImg2.png", result[0][0])
+
   return conn.execute(s, userid=id).fetchall()
 
 
@@ -36,7 +58,7 @@ async def insert_user(user: Users, file: Files):
   conn.execute(files.insert().values(
     file_id=file.file_id,
     file_name=file.file_name,
-    file_path=file.file_path,
+    file_path=sample,
   ))
   conn.execute(relations.insert().values(
     user_id=user.user_id,

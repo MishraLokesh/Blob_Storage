@@ -31,3 +31,15 @@
   }
 }
 
+
+{
+  "user": {
+    "user_id": 2,
+    "email": "U2",
+    "password": "user2"
+  },
+  "file": {
+    "file_id": 2,
+    "file_name": "F2"
+  }
+}
