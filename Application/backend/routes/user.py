@@ -31,7 +31,7 @@ def writefile(filename, data):
       f.write(data)
 
 #blob read from user file
-sample = readfile("img2.png")
+# sample = readfile("img2.png")
  
 # file created from blob data
 
@@ -68,6 +68,22 @@ async def insert_user(user: Users, file: Files):
   return conn.execute(users.select()).fetchall()
 
 
+# insert new user
+@user.post('/{id}')
+async def same_user_new_file(uid:int, file: Files):
+  conn.execute(files.insert().values(
+    file_id=file.file_id,
+    file_name=file.file_name,
+    file_path="sample",
+  ))
+  conn.execute(relations.insert().values(
+    user_id=uid,
+    file_id=file.file_id,
+    is_owner=1,
+  ))
+  return conn.execute(users.select()).fetchall()
+
+    
 # update user
 @user.put('/{id}')
 async def update_user(id: int, user: Users, file: Files):
@@ -91,14 +107,14 @@ async def update_user(id: int, user: Users, file: Files):
 
 # give access to another user
 @user.post('/{id1}')
-async def access_to_new_user(id1: int, id2: int):
+async def access_to_new_user(id1: int, id2: int, fid: int):
   s = text("select is_owner from blob.relation where user_id = :userid")
   result1 = conn.execute(s, userid=id1).fetchall()
-  # print(result1)
-  if(len(result1) > 0):
+  print(result1)
+  if(result1[0][0] == 1): 
     conn.execute(relations.insert().values(
       user_id=id2,
-      file_id=id1,
+      file_id=fid,
       is_owner=0,
     ))
   return conn.execute(relations.select()).fetchall()
