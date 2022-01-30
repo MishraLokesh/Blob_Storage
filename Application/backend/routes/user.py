@@ -1,3 +1,4 @@
+from lzma import compress
 from fastapi import APIRouter
 from sqlalchemy.sql import text
 from schemas.user import Users
@@ -8,6 +9,8 @@ from models.user import users
 from models.user import files
 from models.user import relations
  
+import zlib, sys, base64
+
 from config.db import conn
 user = APIRouter()
 
@@ -18,22 +21,22 @@ async def fetch_users():
   return conn.execute(users.select()).fetchall()
 
 
-
 # convert file to blob
 def readfile(filename):
   with open(filename, "rb") as f:
-      data = f.read()
-  return data
+    data = f.read()
+  print ('Raw size: ',sys.getsizeof(data), '\n') 
+  compressed = base64.b64encode(zlib.compress(data, 9))
+  print ('Raw size: ',sys.getsizeof(compressed)) 
+  return compressed
 
 
+# convert blob to file
 def writefile(filename, data):
+  decompressed = zlib.decompress(base64.b64decode(data))
   with open(filename, "wb") as f:
-      f.write(data)
+    f.write(decompressed)
 
-#blob read from user file
-# sample = readfile("img2.png")
- 
-# file created from blob data
 
 
 # fetch user by id
@@ -43,7 +46,6 @@ async def fetch_user_files(id: int):
   blob_name = text("SELECT file_path FROM blob.files where file_id in (SELECT file_id FROM blob.relation where user_id = :userid)")
   s2 = text("SELECT file_name FROM blob.files where file_id in (SELECT file_id FROM blob.relation where user_id = :userid)")
   fileName = conn.execute(s2, userid=id).fetchall()[0][0]
-  print(fileName)
   result = conn.execute(blob_name, userid=id).fetchall()
   writefile("Files_Download/"+fileName, result[0][0])
 
@@ -75,7 +77,7 @@ async def insert_user(user: Users, file: Files):
 # insert new file for same user
 @user.post('/{id}')
 async def same_user_new_file(uid:int, file: Files):
-  fp = readfile("Files_Upload/"+files.file_name)
+  fp = readfile("Files_Upload/"+file.file_name)
   conn.execute(files.insert().values(
     file_id=file.file_id,
     file_name=file.file_name,
