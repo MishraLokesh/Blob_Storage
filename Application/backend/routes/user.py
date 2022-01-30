@@ -39,17 +39,21 @@ def writefile(filename, data):
 # fetch user by id
 @user.get('/{id}')
 async def fetch_user_files(id: int):
-  s = text("SELECT * FROM blob.files where file_id in (SELECT file_id FROM blob.relation where user_id = :userid)")
+  s1 = text("SELECT * FROM blob.files where file_id in (SELECT file_id FROM blob.relation where user_id = :userid)")
   blob_name = text("SELECT file_path FROM blob.files where file_id in (SELECT file_id FROM blob.relation where user_id = :userid)")
+  s2 = text("SELECT file_name FROM blob.files where file_id in (SELECT file_id FROM blob.relation where user_id = :userid)")
+  fileName = conn.execute(s2, userid=id).fetchall()[0][0]
+  print(fileName)
   result = conn.execute(blob_name, userid=id).fetchall()
-  writefile("newImg2.png", result[0][0])
+  writefile("Files_Download/"+fileName, result[0][0])
 
-  return conn.execute(s, userid=id).fetchall()
+  return conn.execute(s1, userid=id).fetchall()
 
 
 # insert new user
 @user.post('/')
 async def insert_user(user: Users, file: Files):
+  fp = readfile("Files_Upload/"+file.file_name)
   conn.execute(users.insert().values(
     user_id=user.user_id,
     email=user.email,
@@ -58,7 +62,7 @@ async def insert_user(user: Users, file: Files):
   conn.execute(files.insert().values(
     file_id=file.file_id,
     file_name=file.file_name,
-    file_path="sample",
+    file_path=fp,
   ))
   conn.execute(relations.insert().values(
     user_id=user.user_id,
@@ -68,13 +72,14 @@ async def insert_user(user: Users, file: Files):
   return conn.execute(users.select()).fetchall()
 
 
-# insert new user
+# insert new file for same user
 @user.post('/{id}')
 async def same_user_new_file(uid:int, file: Files):
+  fp = readfile("Files_Upload/"+files.file_name)
   conn.execute(files.insert().values(
     file_id=file.file_id,
     file_name=file.file_name,
-    file_path="sample",
+    file_path=fp,
   ))
   conn.execute(relations.insert().values(
     user_id=uid,
