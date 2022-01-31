@@ -10,6 +10,9 @@ class Files(BaseModel):
   file_id: int
   file_name: str
 
+class Files_rename(BaseModel):
+  file_name: str
+
 class Relation(BaseModel):
   user_id: int
   file_id: int
