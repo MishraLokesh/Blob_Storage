@@ -14,7 +14,7 @@ import zlib, sys, base64
 from passlib.context import CryptContext
 from . import oauth2
 
-user = APIRouter(tags=['Blob'])
+user = APIRouter(tags=['User management'])
 
 
 # fetch all users
@@ -44,14 +44,9 @@ def writefile(filename, data):
 # fetch user by id
 @user.get('/{id}')
 async def fetch_user_files(id: int,current_user: Users = Depends(oauth2.get_current_user)):
-  s1 = text("SELECT * FROM blob.files where file_id in (SELECT file_id FROM blob.relation where user_id = :userid)")
-  blob_name = text("SELECT file_path FROM blob.files where file_id in (SELECT file_id FROM blob.relation where user_id = :userid)")
-  s2 = text("SELECT file_name FROM blob.files where file_id in (SELECT file_id FROM blob.relation where user_id = :userid)")
-  fileName = conn.execute(s2, userid=id).fetchall()[0][0]
-  result = conn.execute(blob_name, userid=id).fetchall()
-  writefile("Files_Download/"+fileName, result[0][0])
-
-  return conn.execute(s1, userid=id).fetchall()
+  s1 = text("SELECT file_id, file_name FROM blob.files where file_id in (SELECT file_id FROM blob.relation where user_id = :userid)")
+  result = conn.execute(s1, userid=id).fetchall()
+  return result
 
 
 # insert new user
@@ -59,7 +54,6 @@ async def fetch_user_files(id: int,current_user: Users = Depends(oauth2.get_curr
 async def insert_user(user: Users, file: Files,current_user: Users = Depends(oauth2.get_current_user)):
   pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
   hashed_pass = pwd_context.hash(user.password)
-
 
   fp = readfile("Files_Upload/"+file.file_name)
   conn.execute(users.insert().values(
@@ -94,50 +88,26 @@ async def same_user_new_file(uid:int, file: Files,current_user: Users = Depends(
     file_id=file.file_id,
     is_owner=1,
   ))
-  return conn.execute(users.select()).fetchall()
+  return "New file successfully inserted"
 
-    
+
 # update user
 @user.put('/{id}')
-async def update_user(id: int, user: Users, file: Files,current_user: Users = Depends(oauth2.get_current_user)):
+async def update_user(id: int, user: Users,current_user: Users = Depends(oauth2.get_current_user)):
+  pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+  hashed_pass = pwd_context.hash(user.password)
   conn.execute(users.update().values(
     user_id=user.user_id,
     email=user.email,
-    password=user.password
+    password=hashed_pass
   ).where(users.c.user_id == id))
-  conn.execute(files.update().values(
-    file_id=file.file_id,
-    file_name=file.file_name,
-    file_path=file.file_path,
-  ).where(files.c.file_id == id))
-  conn.execute(relations.update().values(
-    user_id=user.user_id,
-    file_id=file.file_id,
-    is_owner=1,
-  ).where(relations.c.user_id == id))
-  return conn.execute(relations.select()).fetchall()
+  return "User details successfully updated"
  
-
-# give access to another user
-@user.post('/{id1}')
-async def access_to_new_user(id1: int, id2: int, fid: int,current_user: Users = Depends(oauth2.get_current_user)):
-  s = text("select is_owner from blob.relation where user_id = :userid")
-  result1 = conn.execute(s, userid=id1).fetchall()
-  print(result1)
-  if(result1[0][0] == 1): 
-    conn.execute(relations.insert().values(
-      user_id=id2,
-      file_id=fid,
-      is_owner=0,
-    ))
-  return conn.execute(relations.select()).fetchall()
-
 
 # delete user by id
 @user.delete('/{id}')
 async def delete_user(id: int,current_user: Users = Depends(oauth2.get_current_user)):
   conn.execute(users.delete().where(users.c.user_id == id))
-  conn.execute(files.delete().where(files.c.file_id == id))
   # conn.execute(relations.delete().where(relations.c.user_id == id))
-  return conn.execute(users.select()).fetchall()
+  return "User successfully deleted"
 

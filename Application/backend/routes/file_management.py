@@ -49,10 +49,9 @@ async def download_user_file(id: int,f_id: int,current_user: Users = Depends(oau
   return "File successfully downloaded"
 
 
-# delete file by id
+# rename file accessible to a user
 @router.put('/file/{f_id}')
 async def rename_user_file(f_id: int, u_id: int, file: Files_rename,current_user: Users = Depends(oauth2.get_current_user)):
-
   query1 = text("SELECT * FROM blob.relation where user_id=:uid and file_id = :fid and is_owner=1;")
   file_exists = conn.execute(query1, fid=f_id, uid=u_id).fetchall()
   print(file_exists)
@@ -66,6 +65,24 @@ async def rename_user_file(f_id: int, u_id: int, file: Files_rename,current_user
     ).where(files.c.file_id == f_id))
   
   return "File successfully renamed"
+
+
+
+# give access to another user
+@router.post('/file/access/{id1}')
+async def access_to_new_user(id1: int, id2: int, fid: int,current_user: Users = Depends(oauth2.get_current_user)):
+  s = text("select is_owner from blob.relation where user_id = :userid and file_id=:fileid")
+  result1 = conn.execute(s, userid=id1,fileid=fid).fetchall()
+  print(result1)
+  if(result1[0][0] == 1): 
+    conn.execute(relations.insert().values(
+      user_id=id2,
+      file_id=fid,
+      is_owner=0,
+    ))
+    return "File successfully shared"
+  return "File could not be shared. You don't have the access to share this file"
+
 
 
 # delete file by id
