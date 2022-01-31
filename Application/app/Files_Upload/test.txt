@@ -1,0 +1,53 @@
+nodes ka different
+trueblocks
+
+what kind of db we want and how can we query this
+given ethereum address, find all activity since starting 
+ethereum etl
+solana
+blockchain attacks
+flashloan attacks
+bugs renterancy problem
+ethina parke how they are more effecient to query
+postgress more suitable or something else for our data
+sibil 
+IPFS data
+
+
+
+bugs in solidity recent ones
+
+
+
+
+
+11th Jan -
+polygon deployment
+hardhat test
+binance chain deployment
+cross chain bridging - wazirx binance pr port
+uniswap ne bridge bnaya
+eth ploygon bridging
+
+metamask wallet... khud ka wallet kaise bnega
+resources in nft marketplace
+
+
+nft marketplace
+hardhat se test suites kaise banane hain for bug bounties - start with already existing bugs present in solidity (check whatsapp)
+subgraph pr data (composite variables) kaise dump krne hain
+polygon and binance pr deploy
+crosslink waala kaam how to transfer tokens from one chain to another
+wallet kaise banani hai
+
+
+Jan 24
+Layer2 solutions and bridging 
+
+
+devops
+layer 2 scaling
+swapping ka and lending ka code utha lo
+mask plugin
+
+
