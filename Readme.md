@@ -25,7 +25,7 @@
 1. Clone repo on your local system
 
 ```bash
-git clone https://github.com/MishraLokesh/CloudWiry_Hackathon.git
+git clone https://github.com/MishraLokesh/Blob_Storage.git
 ```
 2. Open a terminal on your localhost and install the dependencies
 
